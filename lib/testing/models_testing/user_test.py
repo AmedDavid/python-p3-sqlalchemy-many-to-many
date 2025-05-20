@@ -9,7 +9,6 @@ class TestUser:
 
     def test_has_attributes(self):
         '''has attributes id, name, created_at, updated_at, reviews, and games.'''
-        
         engine = create_engine(SQLITE_URL)
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -30,7 +29,6 @@ class TestUser:
 
     def test_has_many_reviews(self):
         '''has an attribute "reviews" that is a sequence of Review records.'''
-
         engine = create_engine(SQLITE_URL)
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -56,10 +54,13 @@ class TestUser:
 
     def test_has_many_games(self):
         '''has an attribute "games" that is a sequence of Game records.'''
-
         engine = create_engine(SQLITE_URL)
         Session = sessionmaker(bind=engine)
         session = Session()
+
+        # Clear game_users to avoid unique constraint violations
+        session.execute("DELETE FROM game_users")
+        session.commit()
 
         game_1 = Game(title="Super Marvin Sunscreen")
         game_2 = Game(title="The Legend of Zumba: Breath of the Indoors")
@@ -67,7 +68,6 @@ class TestUser:
         session.commit()
 
         user = User(name="Ben")
-
         print(user.games)
         user.games.append(game_1)
         user.games.append(game_2)
@@ -80,5 +80,6 @@ class TestUser:
 
         session.query(Game).delete()
         session.query(User).delete()
+        session.execute("DELETE FROM game_users")  # Clean up
         session.commit()
-        
+        session.close()
